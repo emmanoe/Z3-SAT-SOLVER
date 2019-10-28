@@ -1,0 +1,12 @@
+digraph G1 {
+	s1 [initial=1,color=green];
+	t1 [final=1,color=red];
+	s1 -> q1;
+	s1 -> q2;
+	q1 -> q3;
+	q1 -> t1;
+	q2 -> q1;
+	q2 -> q3;
+	q2 -> t1;
+	q3 -> t1;
+}

@@ -1,0 +1,5 @@
+digraph square{
+	s3 [initial=1,color=green];
+	t3 [final=1,color=red];
+	s3 -> q -> r -> t3 -> s3;
+}

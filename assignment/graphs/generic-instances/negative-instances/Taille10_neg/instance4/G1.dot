@@ -1,0 +1,5 @@
+digraph A{
+q1 [initial=1,color=green];
+q2 [final=1,color=red];
+q2 -> q1;
+}

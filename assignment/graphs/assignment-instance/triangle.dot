@@ -1,0 +1,5 @@
+digraph triangle{
+	s2 [initial=1,color=green];
+	t2 [final=1,color=red];
+	s2 -> q -> t2 -> s2;
+}

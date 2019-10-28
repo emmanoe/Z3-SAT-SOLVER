@@ -1,0 +1,17 @@
+digraph A{
+q0 [initial=1,color=green];
+q13 [final=1,color=red];
+q1 -> q11;
+q1 -> q12;
+q2 -> q1;
+q2 -> q3;
+q3 -> q12;
+q4 -> q5;
+q4 -> q11;
+q5 -> q12;
+q6 -> q2;
+q6 -> q4;
+q6 -> q9;
+q7 -> q12;
+q11 -> q1;
+}

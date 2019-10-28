@@ -1,0 +1,9 @@
+z3_algebraic.h
+z3_api.h
+z3_fpa.h
+z3.h
+z3_interp.h
+z3_macros.h
+z3_polynomial.h
+z3_rcf.h
+z3_v1.h
