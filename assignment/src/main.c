@@ -21,5 +21,22 @@ int main (int argc, char *argv[])
     unsigned int numGraphes = 2;
     unsigned int pathLengt = 3;
     Z3_ast formula = graphsToPathFormula(ctx, p, numGraphes, pathLengt);
+    printf("Formula is: %s \n",Z3_ast_to_string(ctx,formula));
+    Z3_lbool isSat = isFormulaSat(ctx, formula); 
+
+    switch (isSat)
+        {
+        case Z3_L_FALSE:
+            printf("%s is not satisfiable.\n",Z3_ast_to_string(ctx,formula));
+            break;
+
+        case Z3_L_UNDEF:
+                printf("We don't know if %s is satisfiable.\n",Z3_ast_to_string(ctx,formula));
+            break;
+
+        case Z3_L_TRUE:
+                printf("%s is satisfiable.\n",Z3_ast_to_string(ctx,formula));
+                break;
+        }
     return 0;
 }

@@ -34,16 +34,18 @@ Z3_ast getNodeVariable(Z3_context ctx, int number, int position, int k, int node
 Z3_ast graphsToPathFormula( Z3_context ctx, Graph *graphs,unsigned int numGraphs, int pathLength)
 {
     // arrays that store literals, clause and subformulas for generate formula to the path formula
-    Z3_ast subphi1 [numGraphs]; 
+    Z3_ast subphi1 [numGraphs];
+    Z3_ast subphi2 [numGraphs]; 
     Z3_ast literalj [pathLength+1]; // verify variable for each path value
     Z3_ast literall [pathLength+1];
     Z3_ast clause [pathLength+1]; // compare each variable 2 by 2 clause
     Z3_ast clause_array [pathLength+1];
     Z3_ast cnf [pathLength+1];
 
-	// subformula phi1 : for each graphs, for each node in graphs path, node can't be at position j and l at the same time
+	
     for (int i = 0; i<numGraphs; i++){
-        int index=0;
+
+        // subformula phi1 : for each graphs, for each node in graphs path, node can't be at position j and l at the same time
         for (int q=0; q<orderG(graphs[i]); q++){
             for (int j=0; j<=pathLength; j++){ // for node q at pos j
                 literalj[j] = Z3_mk_not(ctx,getNodeVariable(ctx,i,j,pathLength,q)); 
@@ -65,14 +67,28 @@ Z3_ast graphsToPathFormula( Z3_context ctx, Graph *graphs,unsigned int numGraphs
             //for (int cpt=0; cpt<index; cpt++)
             //   printf("clause_array[%d]: %s \n",cpt,Z3_ast_to_string(ctx,clause_array[cpt]));            
             cnf[q] = Z3_mk_and(ctx,pathLength+1,clause_array);
-            printf("cnf[%d]: %s \n",q,Z3_ast_to_string(ctx,cnf[q]));   
+            //printf("cnf[%d]: %s \n",q,Z3_ast_to_string(ctx,cnf[q]));   
         }
         subphi1[i] = Z3_mk_and(ctx,numGraphs,cnf); 
-        printf("subphi1: %s \n",Z3_ast_to_string(ctx,subphi1[i]));  
-        //Other phi formulas to write
-        //    }
+        //printf("subphi1[%d]: %s \n",i,Z3_ast_to_string(ctx,subphi1[i]));  
+    
+    // subformula phi2 : the path is a valid path (first vertex of path is s_i, last vertex is t_i)
+        Z3_ast s_i = mk_bool_var(ctx,"False"); Z3_ast t_i = mk_bool_var(ctx,"False");
+        for (int q = 0; q<orderG(graphs[i]); q++){
+            if (isSource(graphs[i], q))
+                s_i = getNodeVariable(ctx,i,0,pathLength,q);
+            if (isTarget(graphs[i], q)){
+                t_i = getNodeVariable(ctx,i,pathLength-1,pathLength,q);
+            }
+        }
+        Z3_ast valid[2] = {s_i, t_i};
+        subphi2[i] = Z3_mk_and(ctx, numGraphs, valid);
     }
-    return 0;
+    Z3_ast phi1 = Z3_mk_and(ctx, numGraphs, subphi1);
+    Z3_ast phi2 = Z3_mk_and(ctx, numGraphs, subphi2);
+    Z3_ast phi0[2] = {phi1, phi2};
+    Z3_ast phi = Z3_mk_and(ctx, 2, phi0);
+    return phi;
 }
 
 /**
