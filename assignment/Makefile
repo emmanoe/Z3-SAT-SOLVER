@@ -12,7 +12,7 @@ OBJ 		= build/Parser.o build/Lexer.o $(OBJPARS) $(OBJSRC)
 all: equalPath doc
 
 equalPath: $(OBJ) 
-		$(CC) $(CFLAGS) $(OBJ) -o equalPath
+		$(CC) $(CFLAGS) $(OBJ) -lz3 -o equalPath
 
 build/Lexer.o: parser/Lexer.c parser/Parser.c
 		mkdir -p build
@@ -53,7 +53,7 @@ build/Z3Example.o: examples/Z3Example.c
 		$(CC) -c $(CFLAGS) $^ -o $@
 
 Z3Example: build/Z3Example.o build/Z3Tools.o
-		$(CC) $(CFLAGS) $^ -o $@
+		$(CC) $(CFLAGS) $^ -lz3 -o $@
 
 .PHONY: doc
 doc:

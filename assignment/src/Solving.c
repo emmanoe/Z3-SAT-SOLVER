@@ -1,3 +1,10 @@
+#include "Solving.h"
+#include "Z3Tools.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+
+
 /**
  * @brief Generates a formula consisting of a variable representing the fact that @p node of graph number @p number is at position @p position of an accepting path.
  * 
@@ -10,7 +17,9 @@
  */
 Z3_ast getNodeVariable(Z3_context ctx, int number, int position, int k, int node)
 {
-    return 0;
+  char buff[32];
+  snprintf(buff,32,"x%d.%d.%d.%d", number, position, k, node); 
+  return mk_bool_var(ctx,buff);
 }
 
 /**
@@ -24,6 +33,45 @@ Z3_ast getNodeVariable(Z3_context ctx, int number, int position, int k, int node
  */
 Z3_ast graphsToPathFormula( Z3_context ctx, Graph *graphs,unsigned int numGraphs, int pathLength)
 {
+    // arrays that store literals, clause and subformulas for generate formula to the path formula
+    Z3_ast subphi1 [numGraphs]; 
+    Z3_ast literalj [pathLength+1]; // verify variable for each path value
+    Z3_ast literall [pathLength+1];
+    Z3_ast clause [pathLength+1]; // compare each variable 2 by 2 clause
+    Z3_ast clause_array [pathLength+1];
+    Z3_ast cnf [pathLength+1];
+
+	// subformula phi1 : for each graphs, for each node in graphs path, node can't be at position j and l at the same time
+    for (int i = 0; i<numGraphs; i++){
+        int index=0;
+        for (int q=0; q<orderG(graphs[i]); q++){
+            for (int j=0; j<=pathLength; j++){ // for node q at pos j
+                literalj[j] = Z3_mk_not(ctx,getNodeVariable(ctx,i,j,pathLength,q)); 
+                for (int l=0; l<=pathLength; l++){ // check if q is at pos l
+                    if(l!=j){ // if j not equl l
+                        literall[l] = Z3_mk_not(ctx,getNodeVariable(ctx,i,l,pathLength,q));
+                        Z3_ast or_set[2] = {literalj[j],literall[l]};
+                        clause[l] = Z3_mk_or(ctx, 2, or_set);
+                        }
+                    else if(l==j){
+                        Z3_ast True = mk_bool_var(ctx,"True");
+                        literall[l] = True;
+                        Z3_ast or_set[2] = {True,True};
+                        clause[l] = Z3_mk_or(ctx, 2, or_set);
+                    }
+                }
+                clause_array[j] = Z3_mk_and(ctx, pathLength+1, clause);
+            }
+            //for (int cpt=0; cpt<index; cpt++)
+            //   printf("clause_array[%d]: %s \n",cpt,Z3_ast_to_string(ctx,clause_array[cpt]));            
+            cnf[q] = Z3_mk_and(ctx,pathLength+1,clause_array);
+            printf("cnf[%d]: %s \n",q,Z3_ast_to_string(ctx,cnf[q]));   
+        }
+        subphi1[i] = Z3_mk_and(ctx,numGraphs,cnf); 
+        printf("subphi1: %s \n",Z3_ast_to_string(ctx,subphi1[i]));  
+        //Other phi formulas to write
+        //    }
+    }
     return 0;
 }
 
@@ -64,7 +112,7 @@ int getSolutionLengthFromModel(Z3_context ctx, Z3_model model, Graph *graphs)
  */
 void printPathsFromModel(Z3_context ctx, Z3_model model, Graph *graphs, int numGraph, int pathLength)
 {
-    return 0;
+    return ;
 }
 
 /**
@@ -79,5 +127,5 @@ void printPathsFromModel(Z3_context ctx, Z3_model model, Graph *graphs, int numG
  */
 void createDotFromModel(Z3_context ctx, Z3_model model, Graph *graphs, int numGraph, int pathLength, char* name)
 {
-    return 0;
+    return ;
 }
