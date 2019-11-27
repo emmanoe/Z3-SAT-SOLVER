@@ -34,16 +34,18 @@ int main (int argc, char *argv[])
     printf("Noe Creating the context. Must be destroyed at the end of the program.\n");
     
     unsigned int numGraphes = 2;
-    unsigned int pathLength = 3;
-    Z3_ast formula = graphsToPathFormula(ctx, p, numGraphes, pathLength);
-    if(DisplayFormula){
+    //unsigned int pathLength = 3;
+
+    Z3_ast formula = graphsToFullFormula(ctx, graph, numGraphes);
+    if(DisplayFormula)
+    {
         printf("Formula is: %s \n",Z3_ast_to_string(ctx,formula));
     }
     
     Z3_lbool isSat = isFormulaSat(ctx, formula); 
 
     switch (isSat)
-        {
+    {
         case Z3_L_FALSE:
             printf("%s is not satisfiable.\n",Z3_ast_to_string(ctx,formula));
             break;
@@ -55,28 +57,33 @@ int main (int argc, char *argv[])
         case Z3_L_TRUE:
             printf("formula is satisfiable.\n");
             Z3_model model = getModelFromSatFormula(ctx,formula);
-            
+            unsigned int pathLength = 3;
             printf("Pour un chemin de longueur %d:\n",pathLength);
-
-            for(int i = 0; i < numGraphes; ++i){
+            
+            for(int i = 0; i < numGraphes; ++i)
+            {
                 int index = 0;
                 Graph G = p[i];
                 printf("coucou\n");
                 int * path = (int*)malloc(pathLength*sizeof(int)); // path is the y of the verificator(X,y)
-                for(int j = 0; j < pathLength; ++j){
-                    for(int q = 0; q < orderG(G); ++q){
+                for(int j = 0; j < pathLength; ++j)
+                {
+                    for(int q = 0; q < orderG(G); q++)
+                    {
                         Z3_ast var = getNodeVariable(ctx,i, j, pathLength, q);
-                            if(valueOfVarInModel(ctx,model,var)){
-                                path[index]=q;
-                                printf("path[%d]: q[%d]\n", index, path[index]);
-                                index++;
-                            }
-                            else printf("var is null\n");
+                        if(valueOfVarInModel(ctx,model,var))
+                        {
+                            path[index]=q;
+                            //printf("path[%d]: q[%d]\n", index, path[index]);
+                            index++;
+                            break;
                         }
+                            //else printf("var is null\n");
                     }
-                free(path);
                 }
+                free(path);
+            }
             break;
-        }
+    }
     return 0;
 }
